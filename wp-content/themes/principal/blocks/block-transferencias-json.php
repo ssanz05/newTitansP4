@@ -1,14 +1,9 @@
 <?php
 global $wpdb;
 
-// Si tu tabla no tiene prefijo
 $tabla = 'transfer_reservas';
 
-// Consulta directamente en get_results
 $reservas = $wpdb->get_results("SELECT * FROM $tabla", ARRAY_A);
-
-// Depuración temporal
-// echo '<pre>'; var_dump($reservas); echo '</pre>';
 
 if ($reservas && !empty($reservas)) {
     echo '<div class="reservas-list">';
