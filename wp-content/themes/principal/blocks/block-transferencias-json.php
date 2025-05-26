@@ -1,29 +1,36 @@
 <?php
-global $wpdb;
 
-$tabla = 'transfer_reservas';
+$url = 'http://79.155.68.76:5025/api/resumen-zonas';
+$response = wp_remote_get( $url );
 
-$reservas = $wpdb->get_results("SELECT * FROM $tabla", ARRAY_A);
+if ( is_wp_error( $response ) ) {
+    echo '<p>Error al conectar con la API.</p>';
+    return;
+}
 
-if ($reservas && !empty($reservas)) {
-    echo '<div class="reservas-list">';
-    echo '<h3>Reservas registradas</h3>';
-    echo '<table border="1" cellpadding="5" cellspacing="0">';
-    echo '<tr>';
-    foreach(array_keys($reservas[0]) as $columna) {
-        echo '<th>' . esc_html($columna) . '</th>';
-    }
-    echo '</tr>';
-    foreach ($reservas as $reserva) {
-        echo '<tr>';
-        foreach ($reserva as $valor) {
-            echo '<td>' . esc_html($valor) . '</td>';
-        }
-        echo '</tr>';
-    }
-    echo '</table>';
-    echo '</div>';
-} else {
-    echo '<p>No hay reservas registradas.</p>';
+$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+if ( empty( $data ) ) {
+    echo '<p>No hay datos disponibles.</p>';
+    return;
 }
 ?>
+
+<table style="width:100%; border-collapse:collapse; text-align:left;">
+    <thead>
+        <tr>
+            <th style="border-bottom:1px solid #ccc;">Zona</th>
+            <th style="border-bottom:1px solid #ccc;">Traslados</th>
+            <th style="border-bottom:1px solid #ccc;">Porcentaje</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ( $data as $zona ): ?>
+            <tr>
+                <td><?php echo esc_html( $zona['zona'] ); ?></td>
+                <td><?php echo esc_html( $zona['traslados'] ); ?></td>
+                <td><?php echo esc_html( $zona['porcentaje'] ); ?>%</td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
